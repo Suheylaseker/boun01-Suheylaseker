@@ -1,0 +1,15 @@
+---
+title: "Assignment1:RMarkown Homework"
+author: "Süheyla Şeker"
+date: "04 08 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I am a senior industrial engineering student at Boğaziçi University. 
+I like playing tennis and dancing. I am a Formula 1 fan.
+My Linkedin profile is
+[here](https://www.linkedin.com/in/suheylaseker/)
