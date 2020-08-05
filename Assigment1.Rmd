@@ -18,3 +18,11 @@ My Linkedin profile is
 The presenter Benedict Witzenberger describes in the video how he is doing journalism by manipulating and visualizing data in R. He mentions that the proportion of the data they visualise in the stories is 12.1% and is increasing.Witzenberger, who works at the Süddeutsche Zeitung, said they received 98.7 million visitors at the digital in May due to the pandemic.The team retrieves the data from institutions such as DeStatis and the Robert Koch-Institut, as well as the leaked data from a dvd, usb or Aleph database.They conduct activities such as analysis of election results, identification of outliers, examination of leaked data, top and bottom points ,and tracking of changes over time through R.
 
 [Doing Journalism with R](https://www.youtube.com/watch?v=1bmdHy5vtfY&list=LLOOXUVQ4VuNbQgs2jHR_2Hg&index=2&t=448s)
+
+
+
+
+# Analyzing Formula 1 results in R 
+Thomas Hütter, a Formula 1 fan like me, visualized the 2016 Formula 1 race results using R in his work. In this study, Thomas Hütter aimed to compare the performance of pilots based on the scores they received in Formula 1 races in 2016, and filtered the race scores of the top 9 pilots to make it better to visualize the data because there is so much race data.Although Hütter used the data of 9 pilots to make the data easier to visualize, it became difficult to analyze all the data when he plotted it in a single chart using the ggplot2 package. Each race driver's performance during the year has become more detailed in the graphics created separately, and  it was revealed that Nico Rosberg and Lewis Hamilton are the most stable pilots, as well as Daniel Ricciardo and Max Verstappen got at least 1 point at each race.
+
+[Analyzing Formula 1 results in R](https://www.sqlservercentral.com/articles/analyzing-formula-1-results-in-r)
