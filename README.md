@@ -1,2 +1,2 @@
 # boun01-Suheylaseker
-boun01-Suheylaseker created by GitHub Classroom
+My Github page is [here] (https://pjournal.github.io/boun01-Suheylaseker/)
