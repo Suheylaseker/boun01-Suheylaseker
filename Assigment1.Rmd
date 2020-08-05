@@ -1,5 +1,5 @@
 ---
-title: "Assignment1:RMarkown Homework"
+title: "Assignment1:RMarkdown Homework"
 author: "Süheyla Şeker"
 date: "04/08/2020"
 output: html_document
