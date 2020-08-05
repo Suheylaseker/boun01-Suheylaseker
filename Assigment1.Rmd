@@ -1,0 +1,20 @@
+---
+title: "Assignment1:RMarkown Homework"
+author: "Süheyla Şeker"
+date: "04/08/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I am a senior industrial engineering student at Boğaziçi University. 
+I like playing tennis and dancing. I am a Formula 1 fan.
+My Linkedin profile is
+[here](https://www.linkedin.com/in/suheylaseker/)
+
+# UseR!2020:Doing Journalism with R (B. Witzenberger)
+The presenter Benedict Witzenberger describes in the video how he is doing journalism by manipulating and visualizing data in R. He mentions that the proportion of the data they visualise in the stories is 12.1% and is increasing.Witzenberger, who works at the Süddeutsche Zeitung, said they received 98.7 million visitors at the digital in May due to the pandemic.The team retrieves the data from institutions such as DeStatis and the Robert Koch-Institut, as well as the leaked data from a dvd, usb or Aleph database.They conduct activities such as analysis of election results, identification of outliers, examination of leaked data, top and bottom points ,and tracking of changes over time through R.
+
+[Doing Journalism with R](https://www.youtube.com/watch?v=1bmdHy5vtfY&list=LLOOXUVQ4VuNbQgs2jHR_2Hg&index=2&t=448s)
