@@ -150,7 +150,7 @@ ggplot(plot_df1,aes(x=Hour,y=SMF,fill=as.factor(Date))) + geom_bar(stat="identit
  
 ```
  
- Then, I  wanted to analyze each Friday specifically by analyzing SMF prices and hours.By doing this I also focused on praying times which is between 13:00- 14:00.
+Then, I  wanted to analyze each Friday specifically by analyzing SMF prices and hours.By doing this I also focused on praying times which is between 13:00- 14:00.
 
 ```{r}
 plot_df2<- raw_df%>% filter(Date== "2020-07-03") 
@@ -188,7 +188,8 @@ ggplot(plot_df6,aes(x=Hour,y=SMF,fill=as.factor(SMF.Yön))) + geom_bar(stat="ide
   labs(x="Hour",y="SMF",title="",fill="2020-07-31 SMF") + 
   theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
 ```
- #Effect of praying hours on SMF Prices
+
+# Effect of Praying Hours on SMF Prices
 ```{r}
 plot_df7<- plot_df1%>% filter(Hour>= "12:00" & Hour<= "16:00") 
 
