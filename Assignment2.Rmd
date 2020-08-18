@@ -1,8 +1,10 @@
 ---
 title: "Assignment2"
 author: "Süheyla Şeker"
-date: "17/08/2020"
-output: html_document
+date: "18/08/2020"
+output: 
+ html_document:
+  toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -189,7 +191,7 @@ ggplot(plot_df6,aes(x=Hour,y=SMF,fill=as.factor(SMF.Yön))) + geom_bar(stat="ide
   theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
 ```
 
-# Effect of Praying Hours on SMF Prices
+# Effect of Praying ours on SMF Prices
 ```{r}
 plot_df7<- plot_df1%>% filter(Hour>= "12:00" & Hour<= "16:00") 
 
