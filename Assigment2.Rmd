@@ -1,0 +1,213 @@
+---
+title: "Assignment2"
+author: "Süheyla Şeker"
+date: "17/08/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Package Installation
+```{r ,warning=FALSE, message=FALSE}
+library(tidyverse) 
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(tidyr)
+```
+# Reading Data
+```{r}
+raw_df <- read.csv2("C:/Users/Suhey/OneDrive/Masaüstü/IE48A/electricitydata.csv")
+```
+Observing data and it's structure.
+```{r}
+raw_df %>% glimpse()
+head(raw_df)
+
+```
+
+Deleting "?" character from the SMF.Yön column's data.
+```{r}
+raw_df=raw_df %>% mutate(SMF.Yön= as.character(sub(".", "", SMF.Yön)))
+```
+ Converting date's information to POSIXct format in order to manipulate data easily.
+```{r }
+raw_df<-raw_df %>% mutate(Tarih=as.POSIXct(factor(Tarih), format="%d.%m.%y")) %>%
+transmute(Tarih, Saat,PTF,SMF,SMF.Yön, Tarih = as_date(Tarih), Day= weekdays(Tarih))
+```
+
+Changing column names.
+```{r}
+raw_df<-raw_df %>%rename(Date=Tarih,Hour=Saat)
+```
+
+```{r include=FALSE}
+raw_df$Day[raw_df$Day=="Pazartesi"]<-"Mon"
+raw_df$Day[raw_df$Day=="Salı"]<-"Tue"
+raw_df$Day[raw_df$Day=="Çarşamba"]<-"Wed"
+raw_df$Day[raw_df$Day=="Perşembe"]<-"Thu"
+raw_df$Day[raw_df$Day=="Cuma"]<-"Fri"
+raw_df$Day[raw_df$Day=="Cumartesi"]<-"Sat"
+raw_df$Day[raw_df$Day=="Pazar"]<-"Sun"
+```
+ 
+ Creating `data1` and `dataDay` dataframes in order to analyze total PTF and SMF prices and percentage change in those prices for each week days.
+ 
+```{r message=FALSE}
+data1<-raw_df %>% group_by(Day) %>%summarise(TotalPTF = sum(PTF),TotalSMF= sum(SMF))
+dataDay<-data1 %>% group_by(Day)%>%summarise(Difference=TotalSMF-TotalPTF,PercentageChange=Difference/TotalPTF)
+```
+
+# Visualization of Percentage Change in Total PTF and SMF Prices for Each Week Days
+```{r}
+ggplot(dataDay,aes(x=Day,y=PercentageChange,fill=as.factor(Day))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Day",y="PercentageChange",title="Percentage Change") + 
+  theme(axis.text.x = element_text(angle=90),legend.position = "top") 
+
+```
+
+# Understanding The Relation Between Certain Days of Week and SMF Prices
+Filtering SMF price data and taking average of SMF prices for each week day in July, in order to analyze the relation between certain days of week and SMF prices.
+```{r message=FALSE}
+data2<-raw_df%>% filter(Day== "Mon") 
+data2.1<- data2%>%group_by(Hour)%>% summarise(Day,AvgMonSMF=mean(SMF))
+data2.1<-unique(data2.1)
+data3<-raw_df%>% filter(Day== "Tue")
+data3.1<- data3%>%group_by(Hour)%>% summarise(Day,AvgTueSMF=mean(SMF))
+data3.1<-unique(data3.1)
+data4<-raw_df%>% filter(Day== "Wed") 
+data4.1<- data4%>%group_by(Hour)%>% summarise(Day,AvgWedSMF=mean(SMF))
+data4.1<-unique(data4.1)
+data5<-raw_df%>% filter(Day== "Thu") 
+data5.1<- data5%>%group_by(Hour)%>% summarise(Day,AvgThuSMF=mean(SMF))
+data5.1<-unique(data5.1)
+data6<-raw_df%>% filter(Day== "Fri") 
+data6.1<- data6%>%group_by(Hour)%>% summarise(Day,AvgFriSMF=mean(SMF))
+data6.1<-unique(data6.1)
+data7<-raw_df%>% filter(Day== "Sat") 
+data7.1<- data7%>%group_by(Hour)%>% summarise(Day,AvgSatSMF=mean(SMF))
+data7.1<-unique(data7.1)
+data8<-raw_df%>% filter(Day== "Sun") 
+data8.1<- data8%>%group_by(Hour)%>% summarise(Day,AvgSunSMF=mean(SMF))
+data8.1<-unique(data8.1)
+
+```
+# Visualization of Relation Between Certain Days of Week and  Average SMF Prices
+
+```{r message=FALSE}
+ggplot(data2.1,aes(x=Hour,y=AvgMonSMF)) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="AvgSMF",title="Monday Avg SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top")
+ 
+ggplot(data3.1,aes(x=Hour,y=AvgTueSMF)) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="AvgSMF",title="Tuesday Avg SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top")
+
+ggplot(data4.1,aes(x=Hour,y=AvgWedSMF)) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="AvgSMF",title="Wednesday Avg SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top")
+
+ggplot(data5.1,aes(x=Hour,y=AvgThuSMF)) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="AvgSMF",title="Thursday Avg SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top")
+
+ggplot(data6.1,aes(x=Hour,y=AvgFriSMF)) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="AvgSMF",title="Friday Avg SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top")
+
+ggplot(data7.1,aes(x=Hour,y=AvgSatSMF)) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="AvgSMF",title="Saturday Avg SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top")
+
+ggplot(data8.1,aes(x=Hour,y=AvgSunSMF)) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="AvgSMF",title="Sunday Avg SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top")
+```
+
+It can be seen that average SMF prices decreases early in the morning and increases afternoon.
+ 
+ Then I wanted to analyze whether religious activity at Fridays affect SMF prices or not. First I analyzed SMF prices on all Fridays in July.
+ 
+```{r}
+plot_df1<- raw_df%>% filter(Day== "Fri") 
+
+```
+Visualization of SMF prices at Fridays
+```{r}
+ggplot(plot_df1,aes(x=Hour,y=SMF,fill=as.factor(Date))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="SMF",title="",fill="Dates SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
+ 
+```
+ 
+ Then, I  wanted to analyze each Friday specifically by analyzing SMF prices and hours.By doing this I also focused on praying times which is between 13:00- 14:00.
+
+```{r}
+plot_df2<- raw_df%>% filter(Date== "2020-07-03") 
+plot_df3<- raw_df%>% filter(Date=="2020-07-10")
+plot_df4<- raw_df%>% filter(Date=="2020-07-17")
+plot_df5<- raw_df%>% filter(Date=="2020-07-24")
+plot_df6<- raw_df%>% filter(Date=="2020-07-31")
+```
+# Visualization of relation between each Friday and hours effect on SMF prices
+```{r}
+ggplot(plot_df2,aes(x=Hour,y=SMF,fill=as.factor(SMF.Yön))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="SMF",title="",fill="2020-07-03 SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
+  
+
+
+ggplot(plot_df3,aes(x=Hour,y=SMF,fill=as.factor(SMF.Yön))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="SMF",title="",fill="2020-07-10 SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
+
+ggplot(plot_df4,aes(x=Hour,y=SMF,fill=as.factor(SMF.Yön))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="SMF",title="",fill="2020-07-17 SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
+
+ggplot(plot_df5,aes(x=Hour,y=SMF,fill=as.factor(SMF.Yön))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="SMF",title="",fill="2020-07-24 SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
+ 
+ggplot(plot_df6,aes(x=Hour,y=SMF,fill=as.factor(SMF.Yön))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="SMF",title="",fill="2020-07-31 SMF") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
+```
+ #Effect of praying hours on SMF Prices
+```{r}
+plot_df7<- plot_df1%>% filter(Hour>= "12:00" & Hour<= "16:00") 
+
+ggplot(plot_df7,aes(x=Hour,y=SMF,fill=as.factor(Date))) + geom_bar(stat="identity",position="dodge") + 
+  theme_minimal() + 
+  labs(x="Hour",y="SMF",title="",fill="") + 
+  theme(axis.text.x = element_text(angle=90,size=7,vjust=0.4),legend.position = "top") 
+```
+
+By looking at SMF prices at praying hours, it can be seen that SMF prices  might increase between praying hours but other factors must also be examined to be sure.
+
+# Conclusion
+- There might be a relation between praying hours on Fridays and SMF prices.
+
+- Electricity demand might increase after working hours since people spend more time in their houses and decrease early in the morning since they sleep.
+
+# References
+- Data Set: [EPIAS/EXIST Transparency Platform](https://rapor.epias.com.tr/rapor/xhtml/ptfSmfListeleme.xhtml)
+
+- Lecture Notes: [Berk Orbay IE48A](https://boun-ie48a.github.io/files/dplyr_renewable.html)
+
+- Lecture Notes: [Berk Orbay IE48A](https://boun-ie48a.github.io/files/ggplot2_renewable.html)
