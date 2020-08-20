@@ -1,60 +1,89 @@
+##########
+### Shiny starter code
+##########
 library(shiny)
-library(plotly)
+library(tidyverse)
+library(ggplot2movies)
 
+# Set randomness seed
+set.seed(61)
+# Prepare data
+shiny_movie_set <- 
+    movies %>% 
+    filter(year >= 2000) %>%
+    select(title,year,length,rating,votes,Action:Short) %>% 
+    gather(genre,value,Action:Short) %>% 
+    filter(value == 1) %>% 
+    select(-value)
+
+# Get genre list
+genres <- 
+    shiny_movie_set %>% 
+    distinct(genre) %>% 
+    unlist(.)
+
+names(genres) <- NULL
+
+
+
+# Define UI for application that draws a histogram
 ui <- fluidPage(
-  actionButton("stream", "Turn stream on/off"),
-  plotlyOutput("plot")
+
+    # Application title
+    titlePanel("Movie Length and IMDB Scores"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput("years",
+                        "Years",
+                        min = 2000,
+                        max = 2005,
+                        value = c(2002,2003),
+                        sep = ""
+                        ),
+            selectInput(
+                inputId="genre",
+                label="Genre",
+                choices=c("All", genres),
+                selected="All",
+                multiple = TRUE
+            ),
+            sliderInput("minvotes",
+                        "At Least X Votes",
+                        min = min(shiny_movie_set$votes),
+                        max = max(shiny_movie_set$votes),
+                        value = median(shiny_movie_set$votes)),
+        ), 
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput("moviePlot")
+        )
+    )
 )
 
-server <- function(input, output, session) {
-  
-  # initial values
-  yint <- c(0, 1)
-  
-  # initiate graph with initial values
-  output$plot <- renderPlotly({
-    plot_ly(y = yint, x = seq_along(yint)) %>%
-      add_lines()
-  })
-  
-  # reactiveValues() act very much like input values, but may be used to 
-  # maintain state (e.g., are we currently streaming?)
-  rv <- reactiveValues(
-    stream = FALSE,
-    yend = sum(yint), 
-    n = length(yint)
-  )
-  
-  # turn streaming on/off when the button is pressed
-  observeEvent(input$stream, {
-    rv$stream <- if (rv$stream) FALSE else TRUE
-  })
-  
-  observe({
-    # if we're not streaming, don't do anything
-    if (!rv$stream) return()
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+
+    output$moviePlot <- renderPlot({
+        
+        print("===Trigger===")
+        print(input$years)
+        print(input$genre)
+        print(input$votes)
+        
     
-    # re-execute this code block to every 100 milliseconds
-    invalidateLater(100, session)
-    # changing a reactive value "invalidates" it, so isolate() is needed 
-    # to avoid recursion
-    isolate({
-      rv$n <- rv$n + 1
-      rv$yend <- rv$yend + sample(c(-1, 1), 1)
+        plot_df <- shiny_movie_set %>% filter(year >= input$years[1] & year <= input$years[2] & votes >= input$minvotes)
+        
+        if(!("All" %in% input$genre)){
+            plot_df <- plot_df %>% filter(genre == input$genre)
+        }
+        print(paste0("Number of rows: ", nrow(plot_df)))
+        
+        ggplot(plot_df, aes(x=length, y=rating, color=genre)) + geom_point() + xlim(0,400) + ylim(0, 10) 
+        
     })
-    
-    # add the new value to the plot
-    plotlyProxy("plot", session) %>%
-      plotlyProxyInvoke(
-        "extendTraces", 
-        list(
-          y = list(list(rv$yend)), 
-          x = list(list(rv$n))
-        ), 
-        list(0)
-      )
-  })
-  
 }
 
-shinyApp(ui, server)
+# Run the application 
+shinyApp(ui = ui, server = server)
