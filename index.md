@@ -3,3 +3,6 @@
 
 ## Assignment2
 [Electricity Market Prices](Assignment2.html)
+
+##In Class Exercises
+[AİrBnb PCA Example](AirBnb-PCA.html)
