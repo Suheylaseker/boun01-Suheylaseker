@@ -5,4 +5,4 @@
 [Electricity Market Prices](Assignment2.html)
 
 ## In Class Exercises
-[AirBnb PCA Example](AirBnb-PCA.html)
+[AirBnb PCA Example](InClassExercies/AirBnb-PCA.html)
