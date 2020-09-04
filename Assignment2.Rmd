@@ -33,7 +33,7 @@ Deleting "?" character from the SMF.Yön column's data.
 ```{r}
 raw_df=raw_df %>% mutate(SMF.Yön= as.character(sub(".", "", SMF.Yön)))
 ```
- Converting date's information to POSIXct format in order to manipulate data easily.
+Converting date's information to POSIXct format in order to manipulate data easily.
 ```{r }
 raw_df<-raw_df %>% mutate(Tarih=as.POSIXct(factor(Tarih), format="%d.%m.%y")) %>%
 transmute(Tarih, Saat,PTF,SMF,SMF.Yön, Tarih = as_date(Tarih), Day= weekdays(Tarih))
