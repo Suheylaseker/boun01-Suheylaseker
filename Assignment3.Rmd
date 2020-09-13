@@ -1,5 +1,5 @@
 ---
-title: "Diamonds Price Estimation"
+title: "Diamond Price Estimation"
 author: "Süheyla Şeker"
 date: "12/09/2020"
 output: 
