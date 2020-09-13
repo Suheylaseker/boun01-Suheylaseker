@@ -1,0 +1,266 @@
+---
+title: "Diamonds Price Estimation"
+author: "Süheyla Şeker"
+date: "12/09/2020"
+output: 
+  html_document:
+          toc: true
+          toc_depth: 3
+          toc_float: true
+          number_sections: true
+          code_folding: hide
+          theme: journal
+---
+
+In this assignment the `diamonds` data set in ggplot2 package is used.First, the relationship between different variables and diamond prices and other data visualizations were made, and a preliminary impression was formed on behalf of the variables needed to build the model. The CART model was created using some variables in the data, and then the previous model was improved with components obtained by PCA. The `price` column is used as the response variable and other columns (except `diamond_id`) are used as predictors.
+
+# Loading Packages
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(broom)
+library(rpart)
+library(rpart.plot) 
+library(rattle)
+library(cowplot)
+```
+# Data Processing
+Train and test data are created using `diamonds` data frame.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+set.seed(503)
+
+diamonds_test <- diamonds %>% mutate(diamond_id = row_number()) %>% 
+  group_by(cut, color, clarity) %>% sample_frac(0.2) %>% ungroup()
+
+diamonds_train <- anti_join(diamonds %>% mutate(diamond_id = row_number()), 
+                            diamonds_test, by = "diamond_id")
+
+diamonds_train<-diamonds_train%>% select(-diamond_id)
+diamonds_test<-diamonds_test%>% select(-diamond_id)
+```
+# Explanatory Data Analysis
+A custom color group is created to use in data visualization.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+custom.col <- c("#000000", "#58D68D", "#8E44AD", "#FCFF33",
+                "#F14CDA", "#0CC3F6", "#E53A07", "#F39C12")
+```
+
+## Number of Diamonds for Different Cuts and Clarities
+- The number of diamonds  with different cut and clarities in data is visualized below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+ggplot(diamonds, aes(x = cut, fill = clarity)) + 
+  geom_bar(position = "dodge")+theme(plot.title = element_text(size=10,face="bold"))+scale_fill_manual(values =custom.col)+labs(x="Cut", y="Count",title="Number of Diamonds for Different Cuts and Clarities")
+```
+
+## The Distribution of Price by Clarity
+- The distribution of price by clarity of diamonds is visualized below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+diamonds %>%
+  ggplot(aes(x = clarity, y = price)) +
+  geom_violin(aes(fill = clarity))+labs(x="Clarity", y="Price",title="Distribution of Price by Clarity")+theme(plot.title = element_text(size=10,face="bold"))
+```
+
+## The  Relation Between Carat, Depth, Table, Cut with Price
+- The relation between price and other variables are visualized below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-hide"}
+plota<-ggplot(diamonds, aes(x=carat, y=price, color=clarity)) + geom_point()+labs(x="Carat", y="Price",title="The Relation Between Carat and Price")+theme(plot.title = element_text(size=9,face="bold",vjust=4),legend.title = element_text(size = 8),legend.text = element_text(size = 7)) +
+        guides(shape = guide_legend(override.aes = list(size = 1)),
+               color = guide_legend(override.aes = list(size =2.5)))
+
+plotb<-ggplot(diamonds, aes(x=depth, y=price, color=clarity)) + geom_point()+labs(x="Depth", y="Price",title="The Relation Between Depth and Price")+theme(plot.title = element_text(size=9,face="bold",vjust=4),legend.title = element_text(size = 7),legend.text = element_text(size = 7))+
+        guides(shape = guide_legend(override.aes = list(size = 1)),
+               color = guide_legend(override.aes = list(size =2.5)))
+
+plotc<-ggplot(diamonds, aes(x=table, y=price, color=clarity)) + geom_point()+labs(x="Table", y="Price",title="The Relation Between Table and Price")+theme(plot.title = element_text(size=9,face="bold",vjust=4),legend.title = element_text(size = 7),legend.text = element_text(size = 7))+
+        guides(shape = guide_legend(override.aes = list(size = 1)),
+               color = guide_legend(override.aes = list(size =2.5)))
+
+
+plotd<-ggplot(diamonds, aes(x=cut, y=price, color=clarity)) + geom_point()+labs(x="Cut", y="Price",title="The Relation Between Cut and Price")+theme(plot.title = element_text(size=9,face="bold",vjust=4),legend.title = element_text(size = 7),legend.text = element_text(size = 7),axis.text=element_text(size=6))+
+        guides(shape = guide_legend(override.aes = list(size = 1)),
+               color = guide_legend(override.aes = list(size =2.5)))
+
+plot_grid(plota, plotb,plotc,plotd, labels = "AUTO")
+
+```
+
+## The  Relation Between X, Y, Z with Price
+- The relation between price and other variables are visualized below.
+```{r,,warning=FALSE,message=FALSE,class.source="fold-hide"}
+plot1<- ggplot(diamonds, aes(x =x, y = price,color=clarity)) +
+  geom_point()+labs(x="X", y="Price",title="The Relation Between X and Price")+theme(plot.title = element_text(size=9,face="bold",vjust=4),legend.title = element_text(size = 7),legend.text = element_text(size = 7))+
+        guides(shape = guide_legend(override.aes = list(size = 1)),
+               color = guide_legend(override.aes = list(size =2.5)))
+
+plot2 <- ggplot(diamonds, aes(x = y, y=price,color=clarity)) +
+  geom_point() + theme_bw() +labs(x="Y", y="Price",title="The Relation Between X and Price")+theme(plot.title = element_text(size=9,face="bold",vjust=4),legend.title = element_text(size = 7),legend.text = element_text(size = 7))+
+        guides(shape = guide_legend(override.aes = list(size = 1)),
+               color = guide_legend(override.aes = list(size =2.5)))
+
+
+plot3 <- ggplot(diamonds, aes(x = z, y=price,color=clarity)) +
+  geom_point() + theme_bw() +labs(x="Z", y="Price",title="The Relation Between X and Price")+theme(plot.title = element_text(size=9,face="bold",vjust=4),legend.title = element_text(size = 7),legend.text = element_text(size = 7))+
+        guides(shape = guide_legend(override.aes = list(size = 1)),
+               color = guide_legend(override.aes = list(size =2.5)))
+
+
+
+plot_grid(plot1, plot2,plot3, labels = "AUTO")
+```
+
+
+## The Proportion and Count of Cut
+- The  proportion of cut for different clarities and the number of cut for different diamond colors are visualized below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-hide"}
+plot4<-ggplot(diamonds, aes(x = cut, fill = clarity)) + 
+  geom_bar(position = "fill")+labs(x="Cut", y="Proportion",title="The Proportion of Cut")+theme(plot.title = element_text(size=10,face="bold"),axis.text=element_text(size=8,angle=45))
+
+plot5<- ggplot(diamonds,aes(x=cut,fill=color))+geom_bar()+labs(x="Cut", y="Count",title="The Count of Cut")+theme(plot.title = element_text(size=10,face="bold"),axis.text=element_text(size=8,angle=45))
+
+plot_grid(plot4, plot5 ,labels = "AUTO",label_size = 18)
+```
+
+## The Price Grouped by Cut
+- The  price of diamonds grouped by cut types is  visualized below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+ggplot(diamonds,aes(x=price))+geom_density(aes(fill=factor(cut)),alpha=0.7)+labs(title="Price grouped by cut",x="Price",fill="Cut")+theme(plot.title = element_text(size=10,face="bold"))
+
+```
+
+#  CART on Train Data
+Model is implemented using `cut`,`color`,`clarity`,`depth`, and `table` features of diamonds on `diamonds_train`.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+diamonds_model1 <- rpart(price~cut+color+clarity+depth+table, data=diamonds_train)
+fancyRpartPlot(diamonds_model1)
+```
+Predictions from model.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+prediction_train<- predict(diamonds_model1)
+print(head(prediction_train))
+```
+
+Error for each node is calculated.Then by using objective function of CART method, minimum error of each node is taken and total error is calculated.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+prediction_train<-as.data.frame(prediction_train)
+train_analysis<- diamonds_train%>%mutate(price,prediction_train)%>%
+  select(-carat,-cut,-color,-clarity,-depth,-table,-x,-y,-z)
+train_analysis<-train_analysis%>%rename(prediction=prediction_train)
+train_analysis$error2<-(train_analysis$price-train_analysis$prediction)^2
+train_analysis1<-train_analysis%>%group_by(prediction)%>%summarise(error=min(error2))
+totalerrortrain=sum(train_analysis1$error)
+totalerrortrain
+```
+
+R-square of model on train data.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+rss<-sum((train_analysis$price-train_analysis$prediction)^2)
+sstol<- sum((train_analysis$price - mean(train_analysis$price))^2)
+rsquared1<-(1-(rss/sstol))
+rsquared1
+
+```
+#  CART on Test Data
+Same model is implemented using `cut`,`color`,`clarity`,`depth`, and `table` features of diamonds on `diamonds_test`.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+main_prediction<-predict(diamonds_model1,newdata =diamonds_test)
+print(head(main_prediction))
+```
+Error for each node is calculated.Then by using objective function of CART method, minimum error of each node is taken and total error is calculated.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+main_prediction<-as.data.frame(main_prediction)
+main_analysis<- diamonds_test%>% mutate(price,main_prediction)%>%
+  select(-carat,-cut,-color,-clarity,-depth,-table,-x,-y,-z)
+main_analysis<-main_analysis%>%rename(prediction=main_prediction)
+main_analysis$error2<-(main_analysis$price-main_analysis$prediction)^2
+
+main_analysis1<-main_analysis%>%group_by(prediction)%>%summarise(error=min(error2))
+totalerrormain=sum(main_analysis1$error)
+totalerrormain
+```
+
+R-square of model on test data.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+rss<-sum((main_analysis$price-main_analysis$prediction)^2)
+sstol<- sum((main_analysis$price - mean(main_analysis$price))^2)
+rsquared2<-(1-(rss/sstol))
+rsquared2
+
+```
+# Improving model with Principal Component Analysis(PCA)
+In order to improve current model, we can create a new model based on the components obtained from PCA.
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
+view(diamonds)
+summary(diamonds[,1:7])
+```
+
+## Correlation Matrix
+The correlation matrix between variables is given below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+traindata<-diamonds_train[,-c(2,3,4,7)]
+testdata<-diamonds_test[,-c(2,3,4,7)]
+cor(traindata)
+```
+The components of PCA and how much of the variation in data  can be explained by components are given below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+pca_train<-princomp(as.matrix(traindata),cor=T)
+pca_test<-princomp(as.matrix(testdata),cor=T)
+summary(pca_train,loadings=TRUE)
+```
+
+As you can clearly see, the first 2 PC is responsible for 86.7% of the variation. First PC considers carat,table, x, y and z as positive effects, second PC is highly affected by depth and considers table as a negative effect and z as a positive effect. With the third PC, 98.1% of the variation is explained.
+
+## Visualizaton of PCA
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+ggplot(data.frame(pc=1:6,cum_var=c(0.653268,0.8674513,0.9810277,0.9896391,0.997564967,1.00000000)),aes(x=pc,y=cum_var)) + geom_point() + geom_line()+
+  labs(y="Cumulative Proportion",x="Principle Components",title="Cumulative Proportions of Components")+theme(plot.title = element_text(size=10,face="bold"))
+
+```
+
+# Model with PCA
+
+By using components of PCA, a PCA model is created and implemented on `pca_traindata`.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+pca_traindata<-cbind(diamonds_train,pca_train$scores[,1:3])
+pca_testdata<-cbind(diamonds_test,pca_test$scores[,1:3])
+model<- rpart(price ~ Comp.1 + Comp.2+Comp.3, data=pca_traindata)
+fancyRpartPlot(model)
+main_predictionpca<-predict(model,newdata =pca_testdata)
+```
+
+You can see predictions from PCA model below.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+print(head(main_predictionpca))
+```
+
+Error for each node is calculated. Then by using objective function of CART method, minimum error of each node is taken and total error is calculated.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+main_predictionpca<-as.data.frame(main_predictionpca)
+main_analysispca<- pca_testdata%>% mutate(price,main_predictionpca)%>%
+  select(-carat,-cut,-color,-clarity,-depth,-table,-x,-y,-z,-Comp.1,-Comp.2,-Comp.3)
+main_analysispca$error2<-(main_analysispca$price-main_analysispca$main_predictionpca)^2
+
+main_analysis3<-main_analysispca%>%group_by(main_predictionpca)%>%summarise(error=min(error2))
+totalerrormain=sum(main_analysis3$error)
+totalerrormain
+```
+
+R-square of PCA model.
+```{r,warning=FALSE,message=FALSE,class.source="fold-show"}
+rss<-sum((main_analysispca$price-main_analysispca$main_predictionpca)^2)
+sstol<- sum((main_analysispca$price - mean(main_analysispca$price))^2)
+rsquared3<-(1-(rss/sstol))
+rsquared3
+```
+
+# Reference
+- [Data Visualization ](https://www.datanovia.com/en/blog/ggplot-colors-best-tricks-you-will-love/#:~:text=Change%20ggplot%20colors%20by%20assigning,or%20to%20the%20fill%20arguments.)
+
+- [R-Graph-Gallery](https://www.r-graph-gallery.com/ggplot2-package.html)
+
+- [Lecture Notes](https://mef-bda503.github.io/archive/fall17/files/intro_to_ml_2.html)
+
+- [Lecture Notes](https://mef-bda503.github.io/archive/fall17/files/intro_to_ml.html)
+
+- [Price Grouped by Cut Plot](https://www.kaggle.com/devisangeetha/data-visualization)
+
