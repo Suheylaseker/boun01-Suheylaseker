@@ -1,0 +1,34 @@
+---
+title: " Creating Hex Code Function"
+author: "Süheyla Şeker"
+date: "16/092020"
+output:
+   html_document:
+          toc: true
+          toc_depth: 3
+          theme: journal
+---
+Loading packages.
+```{r,message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+
+```
+
+Creating hex code function.
+```{r,message=FALSE, warning=FALSE}
+create_hex_code<-function(n=3){
+  vec_digit<-c(letters[1:6],0:9)
+  hex_code<-c() # Empty vector
+  for(i in 1:n){
+    hex_code<-c(hex_code,paste0("#",paste0(sample(vec_digit,6,replace=TRUE),collapse="")))
+  }
+return(hex_code)
+}
+```
+
+Calling function.
+```{r,message=FALSE, warning=FALSE}
+
+create_hex_code()
+```
