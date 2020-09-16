@@ -9,3 +9,4 @@
 
 ## In Class Exercises
 [AirBnb PCA Example](InClassExercises/AirBnb-PCA.html)
+[Hex Code Function] (InClassExercises/HexCode.html)
