@@ -10,6 +10,4 @@
 ## In Class Exercises
 - [AirBnb PCA Example](InClassExercises/AirBnb-PCA.html)
 
-- [Shiny App](InClassExercises/app.R)
-
 - [Hex Code Function](InClassExercises/HexCode.html)
