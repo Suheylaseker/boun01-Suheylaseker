@@ -1,7 +1,7 @@
 ---
 title: " Creating Hex Code Function"
 author: "Süheyla Şeker"
-date: "16/092020"
+date: "16/09/2020"
 output:
    html_document:
           toc: true
