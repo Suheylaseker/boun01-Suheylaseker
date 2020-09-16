@@ -8,6 +8,8 @@
 [Diamond Price Estimation](Assignment3.html)
 
 ## In Class Exercises
-[AirBnb PCA Example](InClassExercises/AirBnb-PCA.html)
+- [AirBnb PCA Example](InClassExercises/AirBnb-PCA.html)
 
-[Hex Code Function](InClassExercises/HexCode.html)
+- [Shiny App](InClassExercises/app.R)
+
+- [Hex Code Function](InClassExercises/HexCode.html)
