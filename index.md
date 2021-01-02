@@ -13,4 +13,7 @@
 ## In Class Exercises
 - [AirBnb PCA Example](InClassExercises/AirBnb-PCA.html)
 
-- [Hex Code Function](InClassExercises/HexCode.html)
+- [Hex Code Function](InClassExercises/HexCode.html)]
+
+## Group Project in Statistical Forecasting&Time Series
+[Trendyol Project] (https://bu-ie-360.github.io/spring20-Suheylaseker/)
